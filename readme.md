@@ -29,9 +29,9 @@ export PYTHONPATH=./
 
 ### Reconstruction Evaluation
 Evaluates codec reconstruction performance on the `librispeech-test-clean` dataset using the following metrics:
-- **Speaker Similarity** - Assessed using a [WavLM-based speaker verification model](https://huggingface.co/Dongchao/UniAudio/resolve/main/wavlm_large_finetune.pth) (SPK SIM). Code available at `reconstruct_evaluation/speaker_similarity.py`.
-- **STOI** - Short-Time Objective Intelligibility. Code available at `reconstruct_evaluation/stoi.py`.
-- **PESQ** - Perceptual Evaluation of Speech Quality. Code available at `reconstruct_evaluation/pesq_local.py`.
+- **Speaker Similarity** - Assessed using a [WavLM-based speaker verification model](https://huggingface.co/Dongchao/UniAudio/resolve/main/wavlm_large_finetune.pth) (SPK SIM). Code available at [speaker_similarity.py](reconstruct_evaluation/speaker_similarity.py).
+- **STOI** - Short-Time Objective Intelligibility. Code available at [stoi.py](reconstruct_evaluation/stoi.py).
+- **PESQ** - Perceptual Evaluation of Speech Quality. Code available at [pesq_local.py](reconstruct_evaluation/pesq_local.py).
 
 ### Semantic Evaluation
 Fine-tunes an ASR task using:
@@ -41,7 +41,7 @@ Fine-tunes an ASR task using:
 - **Two-layer bidirectional LSTM** with a hidden dimension of **1024**.
 - **CTC (Connectionist Temporal Classification) decoder**.
 
-Code available at `semantic_evaluation/finetune_codecforctc.py`.
+Code available at [finetune_codecforctc.py](semantic_evaluation/finetune_codecforctc.py).
 
 #### Datasets
 - **Training dataset**: `librispeech train-clean-100`.
@@ -59,7 +59,7 @@ To integrate a codec or ASR model for evaluation, ensure the model class provide
 For codec models, the hidden representation after RVQ/FSQ is typically used for ASR fine-tuning. 
 For ASR models, either the top Transformer layer or an average of all layers is used.
 
-Code available at `speechtokenizer/model.py`.
+Code available at [model.py](speechtokenizer/model.py).
 
 To add a new codec/ASR model, modify [`spt_utils.py`](./utils/spt_utils.py) as follows (example for SpeechTokenizer):
 
