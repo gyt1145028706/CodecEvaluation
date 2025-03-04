@@ -51,12 +51,13 @@ Code available at [finetune_codecforctc.py](semantic_evaluation/finetune_codecfo
 To integrate a codec or ASR model for evaluation, ensure the model class provides the following attributes:
 - `sampling_rate` - Sample rate of the model.
 - `downsample_rate` - Downsampling rate.
-- `code_dim` - Hidden layer embedding size.
+- `code_dim` - Embedding size for ASR fine-tuning.
 - `forward` method returns a dictionary with:
   - A key **"y"** containing synthesized audio `shape = (B, 1, T)` - *not required for ASR models*.
   - A key **"zq"** containing embeddings for downstream ASR fine-tuning `shape = (B, D, L)`.
 
-For codec models, the hidden representation after RVQ/FSQ is typically used for ASR fine-tuning. 
+For codec models, the hidden representation after RVQ/FSQ is typically used for ASR fine-tuning.
+
 For ASR models, either the top Transformer layer or an average of all layers is used.
 
 Code available at [model.py](speechtokenizer/model.py).
