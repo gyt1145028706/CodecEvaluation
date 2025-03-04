@@ -85,13 +85,13 @@ target_frame_rate_before_ctc = 50
 ## Running Evaluations
 
 ### Reconstruction Evaluation
-Before running, modify `model_type`, `config`, and `codec_ckpt` in the execution script:
+Before running, modify `model_type`, `config`, and `codec_ckpt` in the [execution script](reconstruct_evaluation/submit_reconstruct_evaluation.sh).
 ```bash
 sbatch reconstruct_evaluation/submit_reconstruct_evaluation.sh
 ```
 
 ### Semantic Evaluation
-Before running, modify `model_type`, `config`, and `codec_ckpt` in the execution script:
+Before running, modify `model_type`, `config`, and `codec_ckpt` in the [execution script](semantic_evaluation/submit_semantic_evaluation.sh).
 ```bash
 sbatch semantic_evaluation/submit_semantic_evaluation.sh
 ```
