@@ -100,3 +100,7 @@ Before running, modify `model_type`, `config`, and `codec_ckpt` in the execution
 ```bash
 sbatch semantic_evaluation/submit_semantic_evaluation.sh
 ```
+
+
+## Acknowledgments
+This project was developed with contributions from [**SpeechTokenizer**](https://github.com/ZhangXInFD/SpeechTokenizer). We appreciate its support in providing fundamental codec model functionalities.
