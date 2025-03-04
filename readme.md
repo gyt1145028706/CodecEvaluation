@@ -1,63 +1,88 @@
+# CodecEvaluation
 
 ## Introduction
 
+`CodecEvaluation` is a comprehensive evaluation framework for assessing the performance of codec and ASR models in both reconstruction and semantic tasks.
 
-
-## 代码结构
-- semantic_evaluation 路径下为评测 codec / asr model 的 semantic 性能的代码
-- reconstruct_evaluation 路径下为评测 codec 的重建性能的代码
-- speechtokenizer 路径下为 codec / asr model
-- utils 为一些通用代码
+## Code Structure
+- `semantic_evaluation/` - Code for evaluating the semantic performance of codec/ASR models.
+- `reconstruct_evaluation/` - Code for evaluating the reconstruction performance of codec models.
+- `speechtokenizer/` - Contains codec and ASR models.
+- `utils/` - Utility scripts and common functions.
 
 ## Installation
 
 ```bash
+# Clone the repository
+git clone git@github.com:gyt1145028706/CodecEvaluation.git
+cd CodecEvaluation
+
+# Create a Conda environment and install dependencies
 conda create -n codecevaluation python=3.10 -y
 pip install -r requirements.txt
+
+# Set the Python path
+export PYTHONPATH=./
 ```
 
-## Intruduction
+## Evaluation Tasks
 
-### Reconstruct Evaluation
-在 librispeech-test-clean 上评测 Speaker similarity, STOI, PESQ 
+### Reconstruction Evaluation
+Evaluates codec reconstruction performance on the `librispeech-test-clean` dataset using the following metrics:
+- **Speaker Similarity**
+- **STOI** (Short-Time Objective Intelligibility)
+- **PESQ** (Perceptual Evaluation of Speech Quality)
 
-### Semantic  Evaluation
-用 codec 的 encoder + vq 来微调一个 ASR 任务，并评测英文数据集的 WER，中文数据集的 CER
-具体来说，在 codec encoder 和 vq 后面接一个 dim 为 1024 的两层双向 LSTM，再接一个 CTC
-微调时，训练数据集使用 librispeech train-clean-100, 评测数据集使用 librispeech-test-clean
+### Semantic Evaluation
+Fine-tunes an ASR task using the codec's encoder and vector quantization (VQ) components, then evaluates:
+- **WER** (Word Error Rate) on English datasets
+- **CER** (Character Error Rate) on Chinese datasets
 
-### Prepare your codec model
-以 speechtokenizer 为例，评测 codec model / asr model 需要满足如下条件
-1. 在 codec model 类中提供如下成员变量，其中 sampling_rate 表示采样率，downsample_rate 表示下采样率，code_dim 为隐藏层的 embedding 大小
-    - sampling_rate
-    - downsample_rate
-    - code_dim
-对于 codec，一般来讲会用 rvq / fsq 后的隐层来微调一个下游 asr 模型
-对于 asr 模型，一般会用 transformer 的最顶层 / 所有层的平均来微调一个下游 asr 模型
+The ASR fine-tuning setup includes:
+- A **two-layer bidirectional LSTM** with a hidden dimension of **1024**.
+- A **CTC (Connectionist Temporal Classification) decoder**.
+- Training dataset: `librispeech train-clean-100`
+- Evaluation dataset: `librispeech-test-clean`
 
-2. 在 [spt_utils](./utils/spt_utils.py) 添加你的 codec / asr model，例如
+## Preparing Your Codec Model
+To integrate a codec or ASR model for evaluation, ensure the model class provides the following attributes:
+- `sampling_rate`: Sample rate of the model.
+- `downsample_rate`: Downsampling rate.
+- `code_dim`: Hidden layer embedding size.
+
+For codec models, the hidden representation after RVQ/FSQ is typically used for fine-tuning the ASR model. 
+For ASR models, either the top Transformer layer or an average of all layers is used for fine-tuning.
+
+To add a new codec/ASR model, modify [`spt_utils.py`](./utils/spt_utils.py) as follows:
+
 ```python
-    if args.model_type == "SpeechTokenizer":
-        codec_model = load_and_fix_speechtokenizer(args.config, args.codec_ckpt)
-        target_frame_rate_before_ctc = 50
+if args.model_type == "SpeechTokenizer":
+    codec_model = load_and_fix_speechtokenizer(args.config, args.codec_ckpt)
+    target_frame_rate_before_ctc = 50
 ```
 
-CTC 的注意事项
-- 假设 CTC 的输入长度为 x, 目标序列的字符数量为 y, 则必须满足 x >= 2 * y + 1，详见 [ctc](https://distill.pub/2017/ctc/)
-- 因此对于比特率较低的 codec / asr 模型，我们在微调 lstm-ctc 的 asr 下游任务时，会将隐层 replicate 到 50hz 及以上
-- 例如你的 codec vq 部分为 25hz, 则需要传入 `target_frame_rate_before_ctc = 50`
+### CTC Considerations
+CTC requires that the input length `x` satisfies:
+```
+x >= 2 * y + 1
+```
+where `y` is the target sequence length. More details can be found in this [CTC guide](https://distill.pub/2017/ctc/).
 
-### Reconstruct Evaluation
+For low-bitrate codec/ASR models, the hidden representations are upsampled to at least **50 Hz** before fine-tuning the LSTM-CTC ASR model. 
+For example, if the codec's VQ operates at **25 Hz**, set:
+```python
+target_frame_rate_before_ctc = 50
+```
 
-注意修改启动脚本中的 `model_type`, `config`, `codec_ckpt` 等变量
-```bash 
+## Running Evaluations
+
+### Reconstruction Evaluation
+Modify the variables `model_type`, `config`, and `codec_ckpt` in the execution script before running:
+```bash
 sbatch reconstruct_evaluation/submit_reconstruct_evaluation.sh
 ```
 
 ### Semantic Evaluation
-
-
-注意修改启动脚本中的 `model_type`, `config`, `codec_ckpt` 等变量
-```bash 
+Modify the variables `model_type`, `config`, and `codec_ckpt` in the execution script before running:
+```bash
 sbatch semantic_evaluation/submit_semantic_evaluation.sh
-```
