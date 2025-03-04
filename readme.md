@@ -2,7 +2,7 @@
 
 ## Introduction
 
-`CodecEvaluation` is a comprehensive evaluation framework for assessing the performance of codec and ASR models in both reconstruction and semantic tasks.
+`CodecEvaluation` is a comprehensive framework designed to evaluate the performance of codec and ASR models in both **reconstruction** and **semantic** tasks.
 
 ## Code Structure
 - `semantic_evaluation/` - Code for evaluating the semantic performance of codec/ASR models.
@@ -29,36 +29,42 @@ export PYTHONPATH=./
 
 ### Reconstruction Evaluation
 Evaluates codec reconstruction performance on the `librispeech-test-clean` dataset using the following metrics:
-- **Speaker Similarity**
-- **STOI** (Short-Time Objective Intelligibility)
-- **PESQ** (Perceptual Evaluation of Speech Quality)
+- **Speaker Similarity** - Assessed using a [WavLM-based speaker verification model](https://huggingface.co/Dongchao/UniAudio/resolve/main/wavlm_large_finetune.pth) (SPK SIM).
+- **STOI** - Short-Time Objective Intelligibility.
+- **PESQ** - Perceptual Evaluation of Speech Quality.
 
 ### Semantic Evaluation
 Fine-tunes an ASR task using the codec's encoder and vector quantization (VQ) components, then evaluates:
-- **WER** (Word Error Rate) on English datasets
-- **CER** (Character Error Rate) on Chinese datasets
+- **WER** - Word Error Rate on English datasets.
+- **CER** - Character Error Rate on Chinese datasets.
 
 The ASR fine-tuning setup includes:
 - A **two-layer bidirectional LSTM** with a hidden dimension of **1024**.
 - A **CTC (Connectionist Temporal Classification) decoder**.
-- Training dataset: `librispeech train-clean-100`
-- Evaluation dataset: `librispeech-test-clean`
+- **Training dataset**: `librispeech train-clean-100`.
+- **Evaluation dataset**: `librispeech-test-clean`.
 
 ## Preparing Your Codec Model
 To integrate a codec or ASR model for evaluation, ensure the model class provides the following attributes:
-- `sampling_rate`: Sample rate of the model.
-- `downsample_rate`: Downsampling rate.
-- `code_dim`: Hidden layer embedding size.
+- `sampling_rate` - Sample rate of the model.
+- `downsample_rate` - Downsampling rate.
+- `code_dim` - Hidden layer embedding size.
+- `forward` method returns a dictionary with:
+  - A key **"y"** containing synthesized audio (`(B, 1, T)`) - *not required for ASR models*.
+  - A key **"zq"** containing embeddings for downstream ASR fine-tuning (`(B, D, L)`).
 
-For codec models, the hidden representation after RVQ/FSQ is typically used for fine-tuning the ASR model. 
-For ASR models, either the top Transformer layer or an average of all layers is used for fine-tuning.
+For codec models, the hidden representation after RVQ/FSQ is typically used for ASR fine-tuning. 
+For ASR models, either the top Transformer layer or an average of all layers is used.
 
-To add a new codec/ASR model, modify [`spt_utils.py`](./utils/spt_utils.py) as follows:
+To add a new codec/ASR model, modify [`spt_utils.py`](./utils/spt_utils.py) as follows (example for SpeechTokenizer):
 
 ```python
 if args.model_type == "SpeechTokenizer":
     codec_model = load_and_fix_speechtokenizer(args.config, args.codec_ckpt)
     target_frame_rate_before_ctc = 50
+elif args.model_type == "<your codec / asr model type>":
+    codec_model = your_codec_or_asr_model
+    target_frame_rate_before_ctc = your_frame_rate  # Must be >= 50
 ```
 
 ### CTC Considerations
@@ -77,12 +83,13 @@ target_frame_rate_before_ctc = 50
 ## Running Evaluations
 
 ### Reconstruction Evaluation
-Modify the variables `model_type`, `config`, and `codec_ckpt` in the execution script before running:
+Before running, modify `model_type`, `config`, and `codec_ckpt` in the execution script:
 ```bash
 sbatch reconstruct_evaluation/submit_reconstruct_evaluation.sh
 ```
 
 ### Semantic Evaluation
-Modify the variables `model_type`, `config`, and `codec_ckpt` in the execution script before running:
+Before running, modify `model_type`, `config`, and `codec_ckpt` in the execution script:
 ```bash
 sbatch semantic_evaluation/submit_semantic_evaluation.sh
+```
