@@ -80,7 +80,7 @@ x >= 2 * y + 1
 ```
 where `y` is the target sequence length. More details can be found in this [CTC guide](https://distill.pub/2017/ctc/).
 
-If the input hidden sequence length is too short, the prediction results may not be accurate. 
+**If the input hidden sequence length is too short, the prediction results may not be accurate.**
 For low-bitrate codec/ASR models, the hidden representations are upsampled to at least **50 Hz** before fine-tuning the LSTM-CTC ASR model. 
 For example, if the codec's VQ operates at **25 Hz**, set:
 ```python
