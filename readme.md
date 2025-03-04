@@ -69,8 +69,8 @@ if args.model_type == "SpeechTokenizer":
     codec_model = load_and_fix_speechtokenizer(args.config, args.codec_ckpt)
     target_frame_rate_before_ctc = 50
 elif args.model_type == "<your codec / asr model type>":
-    codec_model = your_codec_or_asr_model
-    target_frame_rate_before_ctc = your_frame_rate  # Must be >= 50
+    codec_model = your_codec_or_asr_model # Ensure all parameters are fixed
+    target_frame_rate_before_ctc = your_frame_rate  # Must be a multiple of the model's Hz and >= 50
 ```
 
 ### CTC Considerations
