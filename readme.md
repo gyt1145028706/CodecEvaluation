@@ -34,13 +34,14 @@ Evaluates codec reconstruction performance on the `librispeech-test-clean` datas
 - **PESQ** - Perceptual Evaluation of Speech Quality.
 
 ### Semantic Evaluation
-Fine-tunes an ASR task using the codec's encoder and vector quantization (VQ) components, then evaluates:
-- **WER** - Word Error Rate on English datasets.
-- **CER** - Character Error Rate on Chinese datasets.
+Fine-tunes an ASR task using:
 
-The ASR fine-tuning setup includes:
-- A **two-layer bidirectional LSTM** with a hidden dimension of **1024**.
-- A **CTC (Connectionist Temporal Classification) decoder**.
+#### Model
+- **Codec/ASR encoder**.
+- **Two-layer bidirectional LSTM** with a hidden dimension of **1024**.
+- **CTC (Connectionist Temporal Classification) decoder**.
+
+#### Datasets
 - **Training dataset**: `librispeech train-clean-100`.
 - **Evaluation dataset**: `librispeech-test-clean`.
 
@@ -50,8 +51,8 @@ To integrate a codec or ASR model for evaluation, ensure the model class provide
 - `downsample_rate` - Downsampling rate.
 - `code_dim` - Hidden layer embedding size.
 - `forward` method returns a dictionary with:
-  - A key **"y"** containing synthesized audio (`(B, 1, T)`) - *not required for ASR models*.
-  - A key **"zq"** containing embeddings for downstream ASR fine-tuning (`(B, D, L)`).
+  - A key **"y"** containing synthesized audio `(B, 1, T)` - *not required for ASR models*.
+  - A key **"zq"** containing embeddings for downstream ASR fine-tuning `(B, D, L)`.
 
 For codec models, the hidden representation after RVQ/FSQ is typically used for ASR fine-tuning. 
 For ASR models, either the top Transformer layer or an average of all layers is used.
