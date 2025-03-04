@@ -1,0 +1,6 @@
+*.flac
+*.mp3
+*.wav
+*.pyc
+*.log
+events.out*
