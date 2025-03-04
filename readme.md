@@ -7,7 +7,7 @@
 ## Code Structure
 - `semantic_evaluation/` - Code for evaluating the semantic performance of codec/ASR models.
 - `reconstruct_evaluation/` - Code for evaluating the reconstruction performance of codec models.
-- `speechtokenizer/` - Contains codec and ASR models.
+- `speechtokenizer/` - Contains codec or ASR models.
 - `utils/` - Utility scripts and common functions.
 
 ## Installation
@@ -53,8 +53,8 @@ To integrate a codec or ASR model for evaluation, ensure the model class provide
 - `downsample_rate` - Downsampling rate.
 - `code_dim` - Hidden layer embedding size.
 - `forward` method returns a dictionary with:
-  - A key **"y"** containing synthesized audio (`(B, 1, T)`) - *not required for ASR models*.
-  - A key **"zq"** containing embeddings for downstream ASR fine-tuning (`(B, D, L)`).
+  - A key **"y"** containing synthesized audio `shape = (B, 1, T)` - *not required for ASR models*.
+  - A key **"zq"** containing embeddings for downstream ASR fine-tuning `shape = (B, D, L)`.
 
 For codec models, the hidden representation after RVQ/FSQ is typically used for ASR fine-tuning. 
 For ASR models, either the top Transformer layer or an average of all layers is used.
